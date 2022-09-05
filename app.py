@@ -89,7 +89,7 @@ def plot_daily_sentiment(parsed_and_scored_news, ticker):
 
 
 st.set_page_config(page_title = "Simple Stock News Sentiment Analyzer", layout = "wide")
-st.header("Simple Stock News Sentiment Analyzer")
+st.header("Simple Stock Sentiment Analyzer")
 
 ticker = st.text_input('Enter Stock Ticker', '').upper()
 
@@ -118,10 +118,3 @@ except Exception as e:
     print(e)
     st.write("Enter a correct stock ticker, e.g. 'AAPL' above and hit Enter.")	
 
-hide_streamlit_style = """
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
