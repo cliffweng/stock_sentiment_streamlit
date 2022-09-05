@@ -2,20 +2,18 @@ import streamlit as st
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 import pandas as pd
-import plotly
 import plotly.express as px
-import json # for graph plotting in website
 # NLTK VADER for sentiment analysis
 import nltk
 nltk.downloader.download('vader_lexicon')
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 def get_news(ticker):
-    url = finviz_url + ticker
+    url = 'https://finviz.com/quote.ashx?t=' + ticker
     req = Request(url=url,headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0'}) 
     response = urlopen(req)    
     # Read the contents of the file into 'html'
-    html = BeautifulSoup(response)
+    html = BeautifulSoup(response,features="lxml")
     # Find 'news-table' in the Soup and load it into 'news_table'
     news_table = html.find(id='news-table')
     return news_table
@@ -27,6 +25,8 @@ def parse_news(news_table):
     for x in news_table.findAll('tr'):
         # read the text from each tr tag into text
         # get text from a only
+        if x.a is None:
+            continue
         text = x.a.get_text() 
         # splite text in the td tag into a list 
         date_scrape = x.td.text.split()
@@ -87,11 +87,9 @@ def plot_daily_sentiment(parsed_and_scored_news, ticker):
     fig = px.bar(mean_scores, x=mean_scores.index, y='sentiment_score', title = ticker + ' Daily Sentiment Scores')
     return fig # instead of using fig.show(), we return fig and turn it into a graphjson object for displaying in web page later
 
-# for extracting data from finviz
-finviz_url = 'https://finviz.com/quote.ashx?t='
 
-st.set_page_config(page_title = "Bohmian's Stock News Sentiment Analyzer", layout = "wide")
-st.header("Bohmian's Stock News Sentiment Analyzer")
+st.set_page_config(page_title = "Simple Stock News Sentiment Analyzer", layout = "wide")
+st.header("Simple Stock News Sentiment Analyzer")
 
 ticker = st.text_input('Enter Stock Ticker', '').upper()
 
@@ -116,8 +114,9 @@ try:
 	st.write(description)	 
 	st.table(parsed_and_scored_news)
 	
-except:
-	st.write("Enter a correct stock ticker, e.g. 'AAPL' above and hit Enter.")	
+except Exception as e: 
+    print(e)
+    st.write("Enter a correct stock ticker, e.g. 'AAPL' above and hit Enter.")	
 
 hide_streamlit_style = """
 <style>
